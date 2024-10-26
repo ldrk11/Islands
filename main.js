@@ -1,15 +1,26 @@
 console.log("Press Control+C to stop the bot")
 
+// IMPORTS
 require('dotenv').config()
-
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, Routes, REST } = require('discord.js');
+
+// ENVIROMENT VARS
 const bot_token = process.env.DISCORD_TOKEN
 const client_id = process.env.CLIENT_ID
 
+// CREATE CLIENT & LOG IN
 const client = new Client({intents: [GatewayIntentBits.Guilds]});
 
+client.once(Events.ClientReady, readyClient => {
+	console.log(`[INFO] Logged in as ${readyClient.user.tag}`);
+});
+
+console.log("[INFO] Logging in")
+client.login(bot_token);
+
+// IMPORT COMMANDS
 var commands = new Collection();
 var commands_array = [];
 
@@ -32,7 +43,7 @@ for (const folder of commandFolders) {
 	}
 }
 
-// Send commands to discord
+// REGISTER COMMANDS
 const rest = new REST().setToken(bot_token);
 
 (async () => {
@@ -49,10 +60,7 @@ const rest = new REST().setToken(bot_token);
 	}
 })();
 
-client.once(Events.ClientReady, readyClient => {
-	console.log(`[INFO] Logged in as ${readyClient.user.tag}`);
-});
-
+// RECEIVE COMMANDS
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
@@ -74,6 +82,3 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 	}
 });
-
-console.log("[INFO] Logging in")
-client.login(bot_token);

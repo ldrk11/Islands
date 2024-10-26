@@ -20,6 +20,32 @@ client.once(Events.ClientReady, readyClient => {
 console.log("[INFO] Logging in")
 client.login(bot_token);
 
+// CLIENT FUNCTIONS
+function write_f(filename, data) {
+    var lock_filename = `${filename}_lock`;
+    if (!fs.existsSync(lock_filename)){
+        fs.writeFileSync(lock_filename, "");
+        fs.writeFileSync(filename, JSON.stringify(data));
+        fs.unlinkSync(lock_filename);
+        return true;
+    }
+    return false;
+}
+  
+function read_f(filename) {
+    var lock_filename = `${filename}_lock`;
+    if (!fs.existsSync(lock_filename)){
+        fs.writeFileSync(lock_filename, "");
+        var file_json = JSON.parse(fs.readFileSync(filename).toString());
+        fs.unlinkSync(lock_filename);
+        return file_json;
+    }
+    return null;
+}
+
+client.write_f = write_f
+client.read_f = read_f
+
 // IMPORT COMMANDS
 var commands = new Collection();
 var commands_array = [];

@@ -5,6 +5,7 @@ module.exports = {
 		.setName('start')
 		.setDescription('Start your island'),
 	async execute(interaction) {
-		await interaction.reply(`implement this...`);
+        interaction.client.write_f("./data/users/test.txt", "hello")
+		await interaction.reply(interaction.client.read_f("./data/users/test.txt"));
 	},
 };

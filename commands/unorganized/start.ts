@@ -12,7 +12,7 @@ module.exports = {
             return;
         }
         if (island_name.includes("/") || island_name.includes("\\") || island_name.includes(".")){
-            await interaction.reply("Island name contain and of the following characters: / \\ .");
+            await interaction.reply("Island name can't contain any of the following characters: / \\ .");
             return;
         }
         interaction.client.write_f(`./data/users/${interaction.user.id}/${island_name}.json`, {}, true);

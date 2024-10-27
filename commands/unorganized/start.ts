@@ -9,9 +9,11 @@ module.exports = {
         var island_name = interaction.options.getString("name")
         if (island_name.length > 20){
 		    await interaction.reply("Island name can't be more than 20 characters");
+            return;
         }
         if (island_name.includes("/") || island_name.includes("\\") || island_name.includes(".")){
             await interaction.reply("Island name contain and of the following characters: / \\ .");
+            return;
         }
         interaction.client.write_f(`./data/users/${interaction.user.id}/${island_name}.json`, {}, true);
 		await interaction.reply(`${island_name} was created!`);

@@ -21,24 +21,26 @@ console.log("[INFO] Logging in")
 client.login(bot_token);
 
 // CLIENT FUNCTIONS
-function write_f(filename, data) {
+function write_f(filename, data, parse_json=true) {
     var lock_filename = `${filename}_lock`;
     if (!fs.existsSync(lock_filename)){
         fs.writeFileSync(lock_filename, "");
-        fs.writeFileSync(filename, JSON.stringify(data));
+        if (parse_json) { data = JSON.stringify(data)}
+        fs.writeFileSync(filename, data);
         fs.unlinkSync(lock_filename);
         return true;
     }
     return false;
 }
   
-function read_f(filename) {
+function read_f(filename, parse_json=true) {
     var lock_filename = `${filename}_lock`;
     if (!fs.existsSync(lock_filename)){
         fs.writeFileSync(lock_filename, "");
-        var file_json = JSON.parse(fs.readFileSync(filename).toString());
+        var file_f = fs.readFileSync(filename).toString();
+        if (parse_json){ file_f = JSON.parse(file_f); }
         fs.unlinkSync(lock_filename);
-        return file_json;
+        return file_f;
     }
     return null;
 }

@@ -13,7 +13,7 @@ const client_id = process.env.CLIENT_ID
 // CREATE CLIENT & LOG IN
 const client = new Client({intents: [GatewayIntentBits.Guilds]});
 
-client.once(Events.ClientReady, readyClient => {
+client.once(Events.ClientReady, (readyClient: any) => {
 	console.log(`[INFO] Logged in as ${readyClient.user.tag}`);
 });
 
@@ -21,7 +21,7 @@ console.log("[INFO] Logging in")
 client.login(bot_token);
 
 // CLIENT FUNCTIONS
-function write_f(filename, data, parse_json=true) {
+function write_f(filename: string, data: string, parse_json: boolean=true) {
     var lock_filename = `${filename}_lock`;
     var folder_only_filename = filename.substring(0, filename.lastIndexOf("/"));
     if (!fs.existsSync(folder_only_filename)){
@@ -37,7 +37,7 @@ function write_f(filename, data, parse_json=true) {
     return false;
 }
   
-function read_f(filename, parse_json=true) {
+function read_f(filename: string, parse_json: boolean=true) {
     var lock_filename = `${filename}_lock`;
     if (!fs.existsSync(lock_filename)){
         fs.writeFileSync(lock_filename, "");
@@ -54,14 +54,14 @@ client.read_f = read_f
 
 // IMPORT COMMANDS
 var commands = new Collection();
-var commands_array = [];
+var commands_array : string[] = [];
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath)
 
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
-	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+	const commandFiles = fs.readdirSync(commandsPath).filter((file: string) => file.endsWith('.ts'));
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
@@ -93,7 +93,7 @@ const rest = new REST().setToken(bot_token);
 })();
 
 // RECEIVE COMMANDS
-client.on(Events.InteractionCreate, async interaction => {
+client.on(Events.InteractionCreate, async (interaction: any) => {
 	if (!interaction.isChatInputCommand()) return;
 
 	const command = commands.get(interaction.commandName);

@@ -23,6 +23,10 @@ client.login(bot_token);
 // CLIENT FUNCTIONS
 function write_f(filename, data, parse_json=true) {
     var lock_filename = `${filename}_lock`;
+    var folder_only_filename = filename.substring(0, filename.lastIndexOf("/"));
+    if (!fs.existsSync(folder_only_filename)){
+        fs.mkdirSync(folder_only_filename, { recursive: true });
+    }
     if (!fs.existsSync(lock_filename)){
         fs.writeFileSync(lock_filename, "");
         if (parse_json) { data = JSON.stringify(data)}

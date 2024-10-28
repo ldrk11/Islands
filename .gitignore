@@ -1,3 +1,4 @@
 .env
 *.js
 data
+build

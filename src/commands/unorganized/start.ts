@@ -1,11 +1,11 @@
-const {SlashCommandBuilder} = require('discord.js');
+var {SlashCommandBuilder} = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('start')
 		.setDescription('Start your island')
-        .addStringOption(option => option.setName("name").setDescription("Enter the name of your new island!").setRequired(true)),
-	async execute(interaction) {
+        .addStringOption((option:any) => option.setName("name").setDescription("Enter the name of your new island!").setRequired(true)),
+	async execute(interaction: any) {
         var island_name = interaction.options.getString("name")
         if (island_name.length > 20){
 		    await interaction.reply("Island name can't be more than 20 characters");

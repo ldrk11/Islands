@@ -4,14 +4,18 @@ console.log("Press Control+C to stop the bot")
 require('dotenv').config()
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, Routes, REST } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, Routes, REST, Intents } = require('discord.js');
 
 // ENVIROMENT VARS
 const bot_token = process.env.DISCORD_TOKEN
 const client_id = process.env.CLIENT_ID
 
 // CREATE CLIENT & LOG IN
-const client = new Client({intents: [GatewayIntentBits.Guilds]});
+const client = new Client({intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+]});
 
 client.once(Events.ClientReady, (readyClient: any) => {
 	console.log(`[INFO] Logged in as ${readyClient.user.tag}`);
@@ -127,3 +131,18 @@ client.on(Events.InteractionCreate, async (interaction: any) => {
     };
     return;
 });
+
+// MESSAGE REPLY EVENT RESPONSE
+client.on(Events.MessageCreate, async (message: any) => {
+    try {
+        var repliedTo = await message.fetchReference()
+    } catch {
+        return;
+    }
+    if (repliedTo.member.id == client.user.id && repliedTo.type == 20){ // 20 being the ChatInputCommand (Slash Command)
+        var command_reply_func = commands.get(repliedTo.interaction.commandName.split(" ")[0])?.command_reply_received
+        if (command_reply_func){
+            command_reply_func(message, repliedTo)
+        }
+    }
+})

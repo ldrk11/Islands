@@ -1,5 +1,6 @@
 # Islands
-Island is a Discord bot for... Discord! (what)
+Island is a Discord bot for... Discord! (what)  
+This bot is still a work in progress and likely has many bugs so beware!
 
 ## Requirements
 - [NodeJS](https://nodejs.org) (Click link to install)

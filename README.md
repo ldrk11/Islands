@@ -6,7 +6,7 @@ This bot is still a work in progress and likely has many bugs so beware!
 - [NodeJS](https://nodejs.org) (Click link to install)
 - TypeScript (Look below for how to install)
 
-### Intalling Typescript
+### Installing Typescript
 Run `npm install typescript` in terminal (npm is apart of nodejs therefore you need to install nodejs first)
 
 ## How to Run

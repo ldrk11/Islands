@@ -14,6 +14,9 @@ module.exports = {
             .addStringOption((group: any) => group
                 .setName("island").setDescription("Island name for information").setRequired(true)
             )
+            .addStringOption((group: any) => group
+                .setName("name").setDescription("Name of member to remove").setRequired(true)
+            )
         )
         .addSubcommand((group: any) => group
             .setName("list").setDescription("List all members on your island")
@@ -85,7 +88,23 @@ module.exports = {
                     .addComponents(island_name_input_action_row, name_input_action_row, colour_input_action_row)
 
                 await interaction.showModal(modal);
-            }
+            } else if (sub_command == "remove"){
+                var island_name = interaction.options.getString("island");
+                var member_name = interaction.options.getString("name");
+                var island_json_location = `./data/users/${interaction.user.id}/${island_name}.json`;
+                var island_info = interaction.client.read_f(island_json_location, true);
+                var i = 0;
+                for (member of island_info.members || []){
+                    if (member.name == member_name){
+                        island_info.members.splice(i, 1)
+                        interaction.client.write_f(island_json_location, island_info, true)
+                        await interaction.reply("Member removed");
+                        return;
+                    };
+                    i++;
+                };
+                await interaction.reply("Couldnt find that member");
+            };
         } else if (sub_command_group == "edit"){
             if (sub_command == "image"){
                 var island_name = interaction.options.getString("island")

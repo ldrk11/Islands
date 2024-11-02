@@ -12,9 +12,8 @@ if (!fs.existsSync(".env")){
     process.exit();
 }
 const bot_token = process.env.DISCORD_TOKEN
-const client_id = process.env.CLIENT_ID
-if (client_id == undefined || bot_token == undefined){
-    console.error("[ERROR] The \"DISCORD_TOKEN\" or \"CLIENT_ID\" wasn't found in the .env file.\nIt can be added with: \"DISCORD_TOKEN=mytokenhere\"");
+if (bot_token == undefined){
+    console.error("[ERROR] The \"DISCORD_TOKEN\" wasn't found in the .env file.\nIt can be added with: \"DISCORD_TOKEN=mytokenhere\"");
     process.exit();
 }
 
@@ -27,6 +26,23 @@ const client = new Client({intents: [
 
 client.once(Events.ClientReady, (readyClient: any) => {
 	console.log(`[INFO] Logged in as ${readyClient.user.tag}`);
+    
+    // REGISTER COMMANDS
+    const rest = new REST().setToken(bot_token);
+    
+    (async () => {
+        try {
+            console.log(`[INFO] Started refreshing ${commands_array.length} application (/) commands.`);
+            const data = await rest.put(
+                Routes.applicationCommands(readyClient.user.id),
+                { body: commands_array },
+            );
+    
+            console.log(`[INFO] Successfully reloaded ${data.length} application (/) commands.`);
+        } catch (error) {
+            console.error(`[ERROR] ${error}`);
+        };
+    })();
 });
 
 console.log("[INFO] Logging in")
@@ -86,23 +102,6 @@ for (const folder of commandFolders) {
 		}
 	}
 }
-
-// REGISTER COMMANDS
-const rest = new REST().setToken(bot_token);
-
-(async () => {
-	try {
-		console.log(`[INFO] Started refreshing ${commands_array.length} application (/) commands.`);
-		const data = await rest.put(
-			Routes.applicationCommands(client_id),
-			{ body: commands_array },
-		);
-
-		console.log(`[INFO] Successfully reloaded ${data.length} application (/) commands.`);
-	} catch (error) {
-		console.error(error);
-	}
-})();
 
 // RECEIVE COMMANDS
 client.on(Events.InteractionCreate, async (interaction: any) => {

@@ -7,8 +7,16 @@ const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, Routes, REST, Intents } = require('discord.js');
 
 // ENVIROMENT VARS
+if (!fs.existsSync(".env")){
+    console.error("[ERROR] No .env file is in the directory. Please add one");
+    process.exit();
+}
 const bot_token = process.env.DISCORD_TOKEN
 const client_id = process.env.CLIENT_ID
+if (client_id == undefined || bot_token == undefined){
+    console.error("[ERROR] The \"DISCORD_TOKEN\" or \"CLIENT_ID\" wasn't found in the .env file.\nIt can be added with: \"DISCORD_TOKEN=mytokenhere\"");
+    process.exit();
+}
 
 // CREATE CLIENT & LOG IN
 const client = new Client({intents: [

@@ -6,7 +6,7 @@ module.exports = {
 		.setDescription('Start your island')
         .addStringOption((option:any) => option.setName("name").setDescription("Enter the name of your new island!").setRequired(true)),
 	async execute(interaction: any) {
-        var island_name = interaction.options.getString("name")
+        var island_name = interaction.options.getString("name");
         if (island_name.length > 20){
 		    await interaction.reply("Island name can't be more than 20 characters");
             return;

@@ -39,34 +39,34 @@ module.exports = {
         var sub_command_group = interaction.options.getSubcommandGroup();
         if (sub_command_group == null){
             if (sub_command == "list"){
-                var island_name = interaction.options.getString("island")
-                var island_json_location = `./data/users/${interaction.user.id}/${island_name}.json`
-                var island_info = interaction.client.read_f(island_json_location, true)
-                var island_members = island_info?.members ?? []
+                var island_name = interaction.options.getString("island");
+                var island_json_location = `./data/users/${interaction.user.id}/${island_name}.json`;
+                var island_info = interaction.client.read_f(island_json_location, true);
+                var island_members = island_info?.members ?? [];
                 if (island_members.length == 0){
                     await interaction.reply("No members on your island!");
                 } else {
                     var member_list = ""
                     for (var i = 0; i < island_members.length; i++){
-                        var member = island_members[i]
-                        member_list = member_list + `Name: ${member.name} \n`
-                    }
+                        var member = island_members[i];
+                        member_list = member_list + `Name: ${member.name} \n`;
+                    };
                     await interaction.reply(member_list);
-                }
+                };
             } else if (sub_command == "add"){
                 var island_name_input = new TextInputBuilder()
                     .setLabel("Island")
                     .setRequired(true)
                     .setCustomId("member_add_island_name")
                     .setStyle(1)
-                    .setMaxLength(20)
+                    .setMaxLength(20);
 
                 var name_input = new TextInputBuilder()
                     .setLabel("Name")
                     .setRequired(true)
                     .setCustomId("member_add_name")
                     .setStyle(1)
-                    .setMaxLength(50)
+                    .setMaxLength(50);
 
                 var colour_input = new TextInputBuilder()
                     .setLabel("Colour (Hex Code)")
@@ -74,16 +74,16 @@ module.exports = {
                     .setCustomId("member_add_colour")
                     .setStyle(1)
                     .setMaxLength(7)
-                    .setValue("#ffffff")
+                    .setValue("#ffffff");
 
-                var island_name_input_action_row: any = new ActionRowBuilder().addComponents(island_name_input)
-                var colour_input_action_row: any = new ActionRowBuilder().addComponents(colour_input)
-                var name_input_action_row: any = new ActionRowBuilder().addComponents(name_input)
+                var island_name_input_action_row: any = new ActionRowBuilder().addComponents(island_name_input);
+                var colour_input_action_row: any = new ActionRowBuilder().addComponents(colour_input);
+                var name_input_action_row: any = new ActionRowBuilder().addComponents(name_input);
 
                 var modal = new ModalBuilder()
                     .setCustomId("member_add_modal")
                     .setTitle("Add new Member")
-                    .addComponents(island_name_input_action_row, name_input_action_row, colour_input_action_row)
+                    .addComponents(island_name_input_action_row, name_input_action_row, colour_input_action_row);
 
                 await interaction.showModal(modal);
             } else if (sub_command == "remove"){
@@ -94,8 +94,8 @@ module.exports = {
                 var i = 0;
                 for (member of island_info.members || []){
                     if (member.name == member_name){
-                        island_info.members.splice(i, 1)
-                        interaction.client.write_f(island_json_location, island_info, true)
+                        island_info.members.splice(i, 1);
+                        interaction.client.write_f(island_json_location, island_info, true);
                         await interaction.reply("Member removed");
                         return;
                     };
@@ -105,11 +105,11 @@ module.exports = {
             };
         } else if (sub_command_group == "edit"){
             if (sub_command == "image"){
-                var island_name = interaction.options.getString("island")
-                var member_name = interaction.options.getString("name")
-                await interaction.reply(`Reply to this message with the image you want to use for ${member_name} on ${island_name}`) // CHANGING THIS WILL BREAK "member edit image" COMMAND
-            }
-        }
+                var island_name = interaction.options.getString("island");
+                var member_name = interaction.options.getString("name");
+                await interaction.reply(`Reply to this message with the image you want to use for ${member_name} on ${island_name}`); // CHANGING THIS WILL BREAK "member edit image" COMMAND
+            };
+        };
 	},
     async member_add_modal(interaction: any){
         var member_new = {
@@ -117,13 +117,13 @@ module.exports = {
             colour: interaction.fields.getTextInputValue("member_add_colour")
         };
 
-        var island_name = interaction.fields.getTextInputValue("member_add_island_name")
-        var island_json_location = `./data/users/${interaction.user.id}/${island_name}.json`
-        var island_info = interaction.client.read_f(island_json_location, true)
-        if (island_info.members == undefined){island_info.members = []}
-        island_info.members.push(member_new)
-        interaction.client.write_f(island_json_location, island_info, true)
-        await interaction.reply("New member added to island!")
+        var island_name = interaction.fields.getTextInputValue("member_add_island_name");
+        var island_json_location = `./data/users/${interaction.user.id}/${island_name}.json`;
+        var island_info = interaction.client.read_f(island_json_location, true);
+        if (island_info.members == undefined){island_info.members = [];};
+        island_info.members.push(member_new);
+        interaction.client.write_f(island_json_location, island_info, true);
+        await interaction.reply("New member added to island!");
     },
     async command_reply_received(reply: any, replyTo: any){
         if (reply.member.id == replyTo.interaction.user.id){
@@ -132,7 +132,7 @@ module.exports = {
                 var member_image = reply?.attachments.at(0);
                 if (member_image == undefined){
                     await reply.reply("No attachment was added"); return;
-                }
+                };
                 if (member_image.contentType.startsWith("image/")){
                     var original_message_split = replyTo.content.split(" ");             // THIS RELIES ON THE TEXT FOR CHANGING THE IMAGE NOT TO BE CHANGED
                     var member_name = "";                                                //
@@ -142,7 +142,7 @@ module.exports = {
                         } else {                                                         //
                             member_name = `${member_name} ${original_message_split[i]}`; //
                         };                                                               //
-                    }                                                                    //
+                    };                                                                   //
                     var island_name = "";                                                //
                     for (var i = 14; i < original_message_split.length; i++){            //
                         if (i == 14){                                                    //
@@ -150,7 +150,7 @@ module.exports = {
                         } else {                                                         //
                             island_name = `${island_name} ${original_message_split[i]}`; //
                         };                                                               //
-                    }                                                                    //
+                    };                                                                   //
                     var island_json_location = `./data/users/${reply.member.id}/${island_name}.json`;
                     var island_info = reply.client.read_f(island_json_location, true);
                     var member_index = undefined;
@@ -159,17 +159,17 @@ module.exports = {
                         if (member.name == member_name){
                             member_index = i;
                             break;
-                        }
-                    }
-                    if (member_index == undefined) {await reply.reply("No member with that name"); return;}
+                        };
+                    };
+                    if (member_index == undefined) {await reply.reply("No member with that name"); return;};
                     island_info.members[member_index].image_url = member_image.url;
                     reply.client.write_f(island_json_location, island_info, true);
                     await reply.reply("Image added!");
                 } else {
                     await reply.reply("The attachment must be an image and be the first attachment"); return;
-                }
-            }
-        }
+                };
+            };
+        };
         return;
     }
 };

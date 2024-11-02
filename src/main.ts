@@ -1,10 +1,11 @@
 console.log("Press Control+C to stop the bot")
 
 // IMPORTS
-require('dotenv').config()
-const fs = require('node:fs');
-const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, Routes, REST, Intents } = require('discord.js');
+import dotenv from 'dotenv'
+dotenv.config();
+import fs from 'node:fs';
+import path from 'node:path';
+import { Client, Collection, Events, GatewayIntentBits, Routes, REST } from 'discord.js';
 
 // ENVIROMENT VARS
 if (!fs.existsSync(".env")){
@@ -18,7 +19,7 @@ if (bot_token == undefined){
 }
 
 // CREATE CLIENT & LOG IN
-const client = new Client({intents: [
+const client: any = new Client({intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent
@@ -33,7 +34,7 @@ client.once(Events.ClientReady, (readyClient: any) => {
     (async () => {
         try {
             console.log(`[INFO] Started refreshing ${commands_array.length} application (/) commands.`);
-            const data = await rest.put(
+            const data: any = await rest.put(
                 Routes.applicationCommands(readyClient.user.id),
                 { body: commands_array },
             );
@@ -81,7 +82,7 @@ client.write_f = write_f
 client.read_f = read_f
 
 // IMPORT COMMANDS
-var commands = new Collection();
+var commands: Collection<String, any> = new Collection();
 var commands_array : string[] = [];
 
 const foldersPath = path.join(__dirname, 'commands');
@@ -106,7 +107,7 @@ for (const folder of commandFolders) {
 // RECEIVE COMMANDS
 client.on(Events.InteractionCreate, async (interaction: any) => {
 	if (interaction.isChatInputCommand()){
-        const command = commands.get(interaction.commandName);
+        const command: any = commands.get(interaction.commandName);
 
         if (!command) {
             console.error(`No command matching ${interaction.commandName} was found.`);

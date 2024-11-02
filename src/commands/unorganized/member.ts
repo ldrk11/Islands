@@ -1,6 +1,4 @@
-import { Attachment } from "discord.js";
-
-var { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder } = require('discord.js');
+import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder } from 'discord.js';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -78,9 +76,9 @@ module.exports = {
                     .setMaxLength(7)
                     .setValue("#ffffff")
 
-                var island_name_input_action_row = new ActionRowBuilder().addComponents(island_name_input)
-                var colour_input_action_row = new ActionRowBuilder().addComponents(colour_input)
-                var name_input_action_row = new ActionRowBuilder().addComponents(name_input)
+                var island_name_input_action_row: any = new ActionRowBuilder().addComponents(island_name_input)
+                var colour_input_action_row: any = new ActionRowBuilder().addComponents(colour_input)
+                var name_input_action_row: any = new ActionRowBuilder().addComponents(name_input)
 
                 var modal = new ModalBuilder()
                     .setCustomId("member_add_modal")

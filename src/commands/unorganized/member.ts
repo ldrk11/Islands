@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder } from 'discord.js';
+import { getIslandLocation } from '../../getIslandLocation';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -39,8 +40,7 @@ module.exports = {
         var sub_command_group = interaction.options.getSubcommandGroup();
         if (sub_command_group == null){
             if (sub_command == "list"){
-                var island_name = interaction.options.getString("island");
-                var island_json_location = `./data/users/${interaction.user.id}/${island_name}.json`;
+                let island_json_location = getIslandLocation(interaction);
                 var island_info = interaction.client.read_f(island_json_location, true);
                 var island_members = island_info?.members ?? [];
                 if (island_members.length == 0){
@@ -87,9 +87,8 @@ module.exports = {
 
                 await interaction.showModal(modal);
             } else if (sub_command == "remove"){
-                var island_name = interaction.options.getString("island");
                 var member_name = interaction.options.getString("name");
-                var island_json_location = `./data/users/${interaction.user.id}/${island_name}.json`;
+                let island_json_location = getIslandLocation(interaction);
                 var island_info = interaction.client.read_f(island_json_location, true);
                 var i = 0;
                 for (member of island_info.members || []){
@@ -116,9 +115,8 @@ module.exports = {
             name: interaction.fields.getTextInputValue("member_add_name"),
             colour: interaction.fields.getTextInputValue("member_add_colour")
         };
-
         var island_name = interaction.fields.getTextInputValue("member_add_island_name");
-        var island_json_location = `./data/users/${interaction.user.id}/${island_name}.json`;
+        let island_json_location = getIslandLocation(interaction.user.id, island_name);
         var island_info = interaction.client.read_f(island_json_location, true);
         if (island_info.members == undefined){island_info.members = [];};
         island_info.members.push(member_new);
@@ -151,7 +149,7 @@ module.exports = {
                             island_name = `${island_name} ${original_message_split[i]}`; //
                         };                                                               //
                     };                                                                   //
-                    var island_json_location = `./data/users/${reply.member.id}/${island_name}.json`;
+                    let island_json_location = getIslandLocation(reply.member.id, island_name);
                     var island_info = reply.client.read_f(island_json_location, true);
                     var member_index = undefined;
                     for (var i = 0; i < island_info.members.length; i++){

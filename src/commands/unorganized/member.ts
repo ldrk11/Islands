@@ -154,8 +154,8 @@ module.exports = {
                     var island_json_location = `./data/users/${reply.member.id}/${island_name}.json`;
                     var island_info = reply.client.read_f(island_json_location, true);
                     var member_index = undefined;
-                    for (var i = 0; i < island_info?.members.length; i++){
-                        var member = island_info?.members[i];
+                    for (var i = 0; i < island_info.members.length; i++){
+                        var member = island_info.members[i];
                         if (member.name == member_name){
                             member_index = i;
                             break;

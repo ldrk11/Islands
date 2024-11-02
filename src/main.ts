@@ -106,35 +106,34 @@ for (const folder of commandFolders) {
 
 // RECEIVE COMMANDS
 client.on(Events.InteractionCreate, async (interaction: any) => {
-	if (interaction.isChatInputCommand()){
-        const command: any = commands.get(interaction.commandName);
+    try {
+        if (interaction.isChatInputCommand()){
+            const command: any = commands.get(interaction.commandName);
 
-        if (!command) {
-            console.error(`No command matching ${interaction.commandName} was found.`);
+            if (!command) {
+                console.error(`No command matching ${interaction.commandName} was found.`);
+                return;
+            };
+            await command.execute(interaction);
             return;
         };
-
-        try {
-            await command.execute(interaction);
-        } catch (error) {
-            console.error(error);
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-            } else {
-                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        if (interaction.isModalSubmit()){
+            for (var i = 0; i < commands_array.length; i++){
+                var command_data: any = commands_array[i];
+                var command_full: any = commands.get(command_data.name);
+                var command_func: any = Object.keys(command_full).includes(interaction.customId);
+                if (command_func){
+                    await command_full[interaction.customId](interaction);
+                    break;
+                };
             };
         };
-        return;
-    };
-    if (interaction.isModalSubmit()){
-        for (var i = 0; i < commands_array.length; i++){
-            var command_data: any = commands_array[i];
-            var command_full: any = commands.get(command_data.name);
-            var command_func: any = Object.keys(command_full).includes(interaction.customId);
-            if (command_func){
-                command_full[interaction.customId](interaction);
-                break;
-            };
+    } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+        } else {
+            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
         };
     };
     return;
@@ -143,14 +142,23 @@ client.on(Events.InteractionCreate, async (interaction: any) => {
 // MESSAGE REPLY EVENT RESPONSE
 client.on(Events.MessageCreate, async (message: any) => {
     try {
-        var repliedTo = await message.fetchReference();
-    } catch {
-        return;
-    };
-    if (repliedTo.member.id == client.user.id && repliedTo.type == 20){ // 20 being the ChatInputCommand (Slash Command)
-        var command_reply_func = commands.get(repliedTo.interaction.commandName.split(" ")[0])?.command_reply_received;
-        if (command_reply_func){
-            command_reply_func(message, repliedTo);
+        try {
+            var repliedTo = await message.fetchReference();
+        } catch {
+            return;
+        };
+        if (repliedTo.member.id == client.user.id && repliedTo.type == 20){ // 20 being the ChatInputCommand (Slash Command)
+            var command_reply_func = commands.get(repliedTo.interaction.commandName.split(" ")[0])?.command_reply_received;
+            if (command_reply_func){
+                await command_reply_func(message, repliedTo);
+            };
+        };
+    } catch (error) {
+        console.error(error);
+        if (message.replied || message.deferred) {
+            await message.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+        } else {
+            await message.reply({ content: 'There was an error while executing this command!', ephemeral: true });
         };
     };
 });

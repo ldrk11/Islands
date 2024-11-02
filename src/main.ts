@@ -12,8 +12,8 @@ if (!fs.existsSync(".env")){
     console.error("[ERROR] No .env file is in the directory. Please add one");
     process.exit();
 };
-const bot_token = process.env.DISCORD_TOKEN;
-if (bot_token == undefined){
+const botToken = process.env.DISCORD_TOKEN;
+if (botToken == undefined){
     console.error("[ERROR] The \"DISCORD_TOKEN\" wasn't found in the .env file.\nIt can be added with: \"DISCORD_TOKEN=mytokenhere\"");
     process.exit();
 };
@@ -29,14 +29,14 @@ client.once(Events.ClientReady, (readyClient: any) => {
 	console.log(`[INFO] Logged in as ${readyClient.user.tag}`);
     
     // REGISTER COMMANDS
-    const rest = new REST().setToken(bot_token);
+    const rest = new REST().setToken(botToken);
     
     (async () => {
         try {
-            console.log(`[INFO] Started refreshing ${commands_array.length} application (/) commands.`);
+            console.log(`[INFO] Started refreshing ${commandsArray.length} application (/) commands.`);
             const data: any = await rest.put(
                 Routes.applicationCommands(readyClient.user.id),
-                { body: commands_array },
+                { body: commandsArray },
             );
     
             console.log(`[INFO] Successfully reloaded ${data.length} application (/) commands.`);
@@ -47,43 +47,43 @@ client.once(Events.ClientReady, (readyClient: any) => {
 });
 
 console.log("[INFO] Logging in");
-client.login(bot_token);
+client.login(botToken);
 
 // CLIENT FUNCTIONS
-function write_f(filename: string, data: string, parse_json: boolean=true) {
-    var lock_filename = `${filename}_lock`;
-    var folder_only_filename = filename.substring(0, filename.lastIndexOf("/"));
-    if (!fs.existsSync(folder_only_filename)){
-        fs.mkdirSync(folder_only_filename, { recursive: true });
+function writeFile(filename: string, data: string, parseJson: boolean=true) {
+    var lockFilename = `${filename}_lock`;
+    var folderOnlyFilename = filename.substring(0, filename.lastIndexOf("/"));
+    if (!fs.existsSync(folderOnlyFilename)){
+        fs.mkdirSync(folderOnlyFilename, { recursive: true });
     };
-    if (!fs.existsSync(lock_filename)){
-        fs.writeFileSync(lock_filename, "");
-        if (parse_json) {data = JSON.stringify(data);};
+    if (!fs.existsSync(lockFilename)){
+        fs.writeFileSync(lockFilename, "");
+        if (parseJson) {data = JSON.stringify(data);};
         fs.writeFileSync(filename, data);
-        fs.unlinkSync(lock_filename);
+        fs.unlinkSync(lockFilename);
         return true;
     };
     return false;
 };
   
-function read_f(filename: string, parse_json: boolean=true) {
-    var lock_filename = `${filename}_lock`;
-    if (!fs.existsSync(lock_filename)){
-        fs.writeFileSync(lock_filename, "");
-        var file_f = fs.readFileSync(filename).toString();
-        if (parse_json){file_f = JSON.parse(file_f);};
-        fs.unlinkSync(lock_filename);
-        return file_f;
+function readFile(filename: string, parseJson: boolean=true) {
+    var lockFilename = `${filename}_lock`;
+    if (!fs.existsSync(lockFilename)){
+        fs.writeFileSync(lockFilename, "");
+        var fileF = fs.readFileSync(filename).toString();
+        if (parseJson){fileF = JSON.parse(fileF);};
+        fs.unlinkSync(lockFilename);
+        return fileF;
     };
     return null;
 };
 
-client.write_f = write_f;
-client.read_f = read_f;
+client.writeFile = writeFile;
+client.readFile = readFile;
 
 // IMPORT COMMANDS
 var commands: Collection<String, any> = new Collection();
-var commands_array : string[] = [];
+var commandsArray : string[] = [];
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
@@ -97,7 +97,7 @@ for (const folder of commandFolders) {
 		if ('data' in command && 'execute' in command) {
             console.log(`[INFO] ${command.data.name} command was imported from ${filePath}`);
 			commands.set(command.data.name, command);
-			commands_array.push(command.data.toJSON());
+			commandsArray.push(command.data.toJSON());
 		} else {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		};
@@ -118,12 +118,12 @@ client.on(Events.InteractionCreate, async (interaction: any) => {
             return;
         };
         if (interaction.isModalSubmit()){
-            for (var i = 0; i < commands_array.length; i++){
-                var command_data: any = commands_array[i];
-                var command_full: any = commands.get(command_data.name);
-                var command_func: any = Object.keys(command_full).includes(interaction.customId);
-                if (command_func){
-                    await command_full[interaction.customId](interaction);
+            for (var i = 0; i < commandsArray.length; i++){
+                var commandData: any = commandsArray[i];
+                var commandFull: any = commands.get(commandData.name);
+                var commandFunc: any = Object.keys(commandFull).includes(interaction.customId);
+                if (commandFunc){
+                    await commandFull[interaction.customId](interaction);
                     break;
                 };
             };
@@ -148,9 +148,9 @@ client.on(Events.MessageCreate, async (message: any) => {
             return;
         };
         if (repliedTo.member.id == client.user.id && repliedTo.type == 20){ // 20 being the ChatInputCommand (Slash Command)
-            var command_reply_func = commands.get(repliedTo.interaction.commandName.split(" ")[0])?.command_reply_received;
-            if (command_reply_func){
-                await command_reply_func(message, repliedTo);
+            var commandReplyFunc = commands.get(repliedTo.interaction.commandName.split(" ")[0])?.commandReplyReceived;
+            if (commandReplyFunc){
+                await commandReplyFunc(message, repliedTo);
             };
         };
     } catch (error) {

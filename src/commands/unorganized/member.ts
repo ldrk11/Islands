@@ -132,23 +132,23 @@ module.exports = {
                     await reply.reply("No attachment was added"); return;
                 };
                 if (memberImage.contentType.startsWith("image/")){
-                    const originalMessageSplit = replyTo.content.split(" ");             // THIS RELIES ON THE TEXT FOR CHANGING THE IMAGE NOT TO BE CHANGED
-                    let memberName = "";                                                //
-                    for (let i = 12; !(originalMessageSplit[i] == "on"); i++){         //
-                        if (i == 12){                                                    //
-                            memberName = originalMessageSplit[i];                     //
-                        } else {                                                         //
-                            memberName = `${memberName} ${originalMessageSplit[i]}`; //
-                        };                                                               //
-                    };                                                                   //
-                    let islandName = "";                                                //
-                    for (let i = 14; i < originalMessageSplit.length; i++){            //
-                        if (i == 14){                                                    //
-                            islandName = originalMessageSplit[i];                     //
-                        } else {                                                         //
-                            islandName = `${islandName} ${originalMessageSplit[i]}`; //
-                        };                                                               //
-                    };                                                                   //
+                    const originalMessageSplit = replyTo.content.split(" "); // THIS RELIES ON THE TEXT FOR CHANGING THE IMAGE NOT TO BE CHANGED
+                    let memberName = "";
+                    for (let i = 12; !(originalMessageSplit[i] == "on"); i++){
+                        if (i == 12){
+                            memberName = originalMessageSplit[i];
+                        } else {
+                            memberName = `${memberName} ${originalMessageSplit[i]}`;
+                        };
+                    };
+                    let islandName = "";                                             
+                    for (let i = 14; i < originalMessageSplit.length; i++){          
+                        if (i == 14){                                                
+                            islandName = originalMessageSplit[i];                    
+                        } else {                                                     
+                            islandName = `${islandName} ${originalMessageSplit[i]}`; 
+                        };                                                           
+                    };                                                               
                     if (checkIfIslandExists(reply.member.id, islandName) == false){ reply.reply("Island doesn't exist."); return; };
                     let islandJsonLocation = getIslandLocation(reply.member.id, islandName);
                     let islandInfo = reply.client.readFile(islandJsonLocation, true);

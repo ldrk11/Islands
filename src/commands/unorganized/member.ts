@@ -102,7 +102,7 @@ module.exports = {
                     };
                     i++;
                 };
-                await interaction.reply("Couldnt find that member");
+                await interaction.reply("Member doesn't exist.");
             };
         } else if (subCommandGroup == "edit"){
             if (subCommand == "image"){
@@ -163,7 +163,7 @@ module.exports = {
                             break;
                         };
                     };
-                    if (memberIndex == undefined) {await reply.reply("No member with that name"); return;};
+                    if (memberIndex == undefined) {await reply.reply("Member doesn't exist."); return;};
                     islandInfo.members[memberIndex].imageUrl = memberImage.url;
                     reply.client.writeFile(islandJsonLocation, islandInfo, true);
                     await reply.reply("Image added!");

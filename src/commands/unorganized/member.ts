@@ -118,6 +118,10 @@ module.exports = {
         if (checkIfIslandExists(interaction.user.id, islandName) == false){ interaction.reply("Island doesn't exist."); return; };
         let islandJsonLocation = getIslandLocation(interaction.user.id, islandName);
         let islandInfo = interaction.client.readFile(islandJsonLocation, true);
+        if (!(getMemberIndex(islandInfo, interaction.fields.getTextInputValue("memberAddName")) === undefined)) {
+            await interaction.reply("Member already exists."); 
+            return;
+        };
         if (islandInfo.members == undefined){islandInfo.members = [];};
         islandInfo.members.push(memberNew);
         interaction.client.writeFile(islandJsonLocation, islandInfo, true);

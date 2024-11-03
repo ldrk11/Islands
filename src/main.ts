@@ -51,8 +51,8 @@ client.login(botToken);
 
 // CLIENT FUNCTIONS
 function writeFile(filename: string, data: string, parseJson: boolean=true) {
-    var lockFilename = `${filename}_lock`;
-    var folderOnlyFilename = filename.substring(0, filename.lastIndexOf("/"));
+    const lockFilename = `${filename}_lock`;
+    const folderOnlyFilename = filename.substring(0, filename.lastIndexOf("/"));
     if (!fs.existsSync(folderOnlyFilename)){
         fs.mkdirSync(folderOnlyFilename, { recursive: true });
     };
@@ -67,10 +67,10 @@ function writeFile(filename: string, data: string, parseJson: boolean=true) {
 };
   
 function readFile(filename: string, parseJson: boolean=true) {
-    var lockFilename = `${filename}_lock`;
+    const lockFilename = `${filename}_lock`;
     if (!fs.existsSync(lockFilename)){
         fs.writeFileSync(lockFilename, "");
-        var fileF = fs.readFileSync(filename).toString();
+        let fileF = fs.readFileSync(filename).toString();
         if (parseJson){fileF = JSON.parse(fileF);};
         fs.unlinkSync(lockFilename);
         return fileF;
@@ -82,8 +82,8 @@ client.writeFile = writeFile;
 client.readFile = readFile;
 
 // IMPORT COMMANDS
-var commands: Collection<String, any> = new Collection();
-var commandsArray : string[] = [];
+let commands: Collection<String, any> = new Collection();
+let commandsArray : string[] = [];
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
@@ -118,10 +118,10 @@ client.on(Events.InteractionCreate, async (interaction: any) => {
             return;
         };
         if (interaction.isModalSubmit()){
-            for (var i = 0; i < commandsArray.length; i++){
-                var commandData: any = commandsArray[i];
-                var commandFull: any = commands.get(commandData.name);
-                var commandFunc: any = Object.keys(commandFull).includes(interaction.customId);
+            for (let i = 0; i < commandsArray.length; i++){
+                const commandData: any = commandsArray[i];
+                const commandFull: any = commands.get(commandData.name);
+                const commandFunc: any = Object.keys(commandFull).includes(interaction.customId);
                 if (commandFunc){
                     await commandFull[interaction.customId](interaction);
                     break;
@@ -142,13 +142,17 @@ client.on(Events.InteractionCreate, async (interaction: any) => {
 // MESSAGE REPLY EVENT RESPONSE
 client.on(Events.MessageCreate, async (message: any) => {
     try {
+        let repliedTo;
         try {
-            var repliedTo = await message.fetchReference();
-        } catch {
-            return;
-        };
+            repliedTo = await message.fetchReference();
+        } catch (error: any){
+            if (error.code === "MessageReferenceMissing"){
+                return;
+            }
+            console.error(error);
+        }
         if (repliedTo.member.id == client.user.id && repliedTo.type == 20){ // 20 being the ChatInputCommand (Slash Command)
-            var commandReplyFunc = commands.get(repliedTo.interaction.commandName.split(" ")[0])?.commandReplyReceived;
+            const commandReplyFunc = commands.get(repliedTo.interaction.commandName.split(" ")[0])?.commandReplyReceived;
             if (commandReplyFunc){
                 await commandReplyFunc(message, repliedTo);
             };

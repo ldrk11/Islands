@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder } from 'discord.js';
-import { getIslandLocation } from '../../getIslandLocation';
+import { getIslandLocation, checkIfIslandExists } from '../../lib';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -40,6 +40,7 @@ module.exports = {
         var subCommandGroup = interaction.options.getSubcommandGroup();
         if (subCommandGroup == null){
             if (subCommand == "list"){
+                if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
                 let islandJsonLocation = getIslandLocation(interaction);
                 var islandInfo = interaction.client.readFile(islandJsonLocation, true);
                 var islandMembers = islandInfo?.members ?? [];
@@ -88,6 +89,7 @@ module.exports = {
                 await interaction.showModal(modal);
             } else if (subCommand == "remove"){
                 var memberName = interaction.options.getString("name");
+                if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
                 let islandJsonLocation = getIslandLocation(interaction);
                 var islandInfo = interaction.client.readFile(islandJsonLocation, true);
                 var i = 0;
@@ -116,6 +118,7 @@ module.exports = {
             colour: interaction.fields.getTextInputValue("memberAddColour")
         };
         var islandName = interaction.fields.getTextInputValue("memberAddIslandName");
+        if (checkIfIslandExists(interaction.user.id, islandName) == false){ interaction.reply("Island doesn't exist."); return; };
         let islandJsonLocation = getIslandLocation(interaction.user.id, islandName);
         var islandInfo = interaction.client.readFile(islandJsonLocation, true);
         if (islandInfo.members == undefined){islandInfo.members = [];};
@@ -149,6 +152,7 @@ module.exports = {
                             islandName = `${islandName} ${originalMessageSplit[i]}`; //
                         };                                                               //
                     };                                                                   //
+                    if (checkIfIslandExists(reply.member.id, islandName) == false){ reply.reply("Island doesn't exist."); return; };
                     let islandJsonLocation = getIslandLocation(reply.member.id, islandName);
                     var islandInfo = reply.client.readFile(islandJsonLocation, true);
                     var memberIndex = undefined;

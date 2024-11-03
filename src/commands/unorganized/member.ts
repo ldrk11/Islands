@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder } from 'discord.js';
-import { getIslandLocation, checkIfIslandExists } from '../../lib';
+import { getIslandLocation, checkIfIslandExists, getMemberIndex } from '../../lib';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -92,15 +92,12 @@ module.exports = {
                 if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
                 let islandJsonLocation = getIslandLocation(interaction);
                 var islandInfo = interaction.client.readFile(islandJsonLocation, true);
-                var i = 0;
-                for (member of islandInfo.members || []){
-                    if (member.name == memberName){
-                        islandInfo.members.splice(i, 1);
-                        interaction.client.writeFile(islandJsonLocation, islandInfo, true);
-                        await interaction.reply("Member removed");
-                        return;
-                    };
-                    i++;
+                let memberIndex = getMemberIndex(islandInfo, memberName);
+                if (!(memberIndex == undefined)){
+                    islandInfo.members.splice(memberIndex, 1);
+                    interaction.client.writeFile(islandJsonLocation, islandInfo, true);
+                    await interaction.reply("Member removed");
+                    return;
                 };
                 await interaction.reply("Member doesn't exist.");
             };
@@ -155,18 +152,14 @@ module.exports = {
                     if (checkIfIslandExists(reply.member.id, islandName) == false){ reply.reply("Island doesn't exist."); return; };
                     let islandJsonLocation = getIslandLocation(reply.member.id, islandName);
                     var islandInfo = reply.client.readFile(islandJsonLocation, true);
-                    var memberIndex = undefined;
-                    for (var i = 0; i < islandInfo.members.length; i++){
-                        var member = islandInfo.members[i];
-                        if (member.name == memberName){
-                            memberIndex = i;
-                            break;
-                        };
+                    var memberIndex: any = getMemberIndex(islandInfo, memberName);
+                    if (!(memberIndex == undefined)) {                     
+                        islandInfo.members[memberIndex].imageUrl = memberImage.url;
+                        reply.client.writeFile(islandJsonLocation, islandInfo, true);
+                        await reply.reply("Image added!");
+                        return;
                     };
-                    if (memberIndex == undefined) {await reply.reply("Member doesn't exist."); return;};
-                    islandInfo.members[memberIndex].imageUrl = memberImage.url;
-                    reply.client.writeFile(islandJsonLocation, islandInfo, true);
-                    await reply.reply("Image added!");
+                    await reply.reply("Member doesn't exist."); 
                 } else {
                     await reply.reply("The attachment must be an image and be the first attachment"); return;
                 };

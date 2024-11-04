@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
+import { checkIfIslandExists } from '../../lib';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,6 +16,10 @@ module.exports = {
             await interaction.reply("Island name can't contain any of the following characters: / \\ .");
             return;
         }
+        if (checkIfIslandExists(interaction)){
+            await interaction.reply("Island already exists.");
+            return;
+        };
         interaction.client.writeFile(`./data/users/${interaction.user.id}/${islandName}.json`, {}, true);
 		await interaction.reply(`${islandName} was created!`);
 	},

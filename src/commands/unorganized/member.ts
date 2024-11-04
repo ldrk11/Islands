@@ -132,6 +132,11 @@ module.exports = {
             const commandSplit = replyTo.interaction.commandName.split(" ");
             if (commandSplit[0] == "member" &&commandSplit[1] == "edit" && commandSplit[2] == "image"){
                 const memberImage = reply?.attachments.at(0);
+                // Time limit to respond
+                const maxTimeToRespondMs = 5 * 60 * 1000; // 5 minutes in milliseconds
+                let dateNow = new Date();
+                let timeDifference = dateNow.getTime() - replyTo.createdAt.getTime();
+                if (timeDifference >= maxTimeToRespondMs) { return; }
                 if (memberImage == undefined){
                     await reply.reply("No attachment was added"); return;
                 };

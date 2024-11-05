@@ -23,7 +23,7 @@ export function checkIfIslandExists(param1: any, param2: undefined|string = unde
 
 export function getMemberIndex(islandData: any, memberName: string): undefined|number {
     let memberIndex: undefined|number = undefined;
-    islandData.members.forEach((member: any, index: number) => {
+    (islandData.members || []).forEach((member: any, index: number) => {
         if (member.name == memberName && memberIndex == undefined){
             memberIndex = index;
         };

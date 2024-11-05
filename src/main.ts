@@ -6,15 +6,16 @@ dotenv.config();
 import fs from 'node:fs';
 import path from 'node:path';
 import { Client, Collection, Events, GatewayIntentBits, Routes, REST } from 'discord.js';
+import { BOLD_RED_FOREGROUND, RESET_STYLE, Log } from './lib';
 
 // ENVIROMENT VARS
 if (!fs.existsSync(".env")){
-    console.error("[ERROR] No .env file is in the directory. Please add one");
+    Log.prototype.error(`No .env file is in the directory. Please add one`);
     process.exit();
 };
 const botToken = process.env.DISCORD_TOKEN;
 if (botToken == undefined){
-    console.error("[ERROR] The \"DISCORD_TOKEN\" wasn't found in the .env file.\nIt can be added with: \"DISCORD_TOKEN=mytokenhere\"");
+    Log.prototype.error(`The \"DISCORD_TOKEN\" wasn't found in the .env file.\nIt can be added with: \"DISCORD_TOKEN=mytokenhere\"`);
     process.exit();
 };
 
@@ -26,27 +27,27 @@ const client: any = new Client({intents: [
 ]});
 
 client.once(Events.ClientReady, (readyClient: any) => {
-	console.log(`[INFO] Logged in as ${readyClient.user.tag}`);
+	Log.prototype.log(`Logged in as ${readyClient.user.tag}`);
     
     // REGISTER COMMANDS
     const rest = new REST().setToken(botToken);
     
     (async () => {
         try {
-            console.log(`[INFO] Started refreshing ${commandsArray.length} application (/) commands.`);
+            Log.prototype.log(`Started refreshing ${commandsArray.length} application (/) commands.`);
             const data: any = await rest.put(
                 Routes.applicationCommands(readyClient.user.id),
                 { body: commandsArray },
             );
     
-            console.log(`[INFO] Successfully reloaded ${data.length} application (/) commands.`);
+            Log.prototype.log(`Successfully reloaded ${data.length} application (/) commands.`);
         } catch (error) {
-            console.error(`[ERROR] ${error}`);
+            Log.prototype.error(`${error}`);
         };
     })();
 });
 
-console.log("[INFO] Logging in");
+Log.prototype.log("Logging in");
 client.login(botToken);
 
 // CLIENT FUNCTIONS
@@ -95,11 +96,11 @@ for (const folder of commandFolders) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		if ('data' in command && 'execute' in command) {
-            console.log(`[INFO] ${command.data.name} command was imported from ${filePath}`);
+            Log.prototype.log(`${command.data.name} command was imported from ${filePath}`);
 			commands.set(command.data.name, command);
 			commandsArray.push(command.data.toJSON());
 		} else {
-			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+			Log.prototype.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		};
 	};
 };
@@ -111,7 +112,7 @@ client.on(Events.InteractionCreate, async (interaction: any) => {
             const command: any = commands.get(interaction.commandName);
 
             if (!command) {
-                console.error(`No command matching ${interaction.commandName} was found.`);
+                Log.prototype.error(`No command matching ${interaction.commandName} was found.`);
                 return;
             };
             await command.execute(interaction);
@@ -129,7 +130,7 @@ client.on(Events.InteractionCreate, async (interaction: any) => {
             };
         };
     } catch (error) {
-        console.error(error);
+        Log.prototype.error(`${error}`);
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
         } else {
@@ -149,7 +150,7 @@ client.on(Events.MessageCreate, async (message: any) => {
             if (error.code === "MessageReferenceMissing"){
                 return;
             }
-            console.error(error);
+            Log.prototype.error(`${error}`);
         }
         if (repliedTo.member.id == client.user.id && repliedTo.type == 20){ // 20 being the ChatInputCommand (Slash Command)
             const commandReplyFunc = commands.get(repliedTo.interaction.commandName.split(" ")[0])?.commandReplyReceived;
@@ -158,7 +159,7 @@ client.on(Events.MessageCreate, async (message: any) => {
             };
         };
     } catch (error) {
-        console.error(error);
+        Log.prototype.error(`${error}`);
         if (message.replied || message.deferred) {
             await message.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
         } else {

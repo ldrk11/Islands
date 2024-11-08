@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder } from 'discord.js';
+import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder, EmbedBuilder } from 'discord.js';
 import { getIslandLocation, checkIfIslandExists, getMemberIndex, readFile, writeFile } from '../../lib';
 
 module.exports = {
@@ -21,6 +21,15 @@ module.exports = {
             .setName("list").setDescription("List all members on your island")
             .addStringOption((group: any) => group
                 .setName("island").setDescription("Island name for information").setRequired(true)
+            )
+        )
+        .addSubcommand((group: any) => group
+            .setName("view").setDescription("View a member on your island")
+            .addStringOption((group: any) => group
+                .setName("island").setDescription("Island name for information").setRequired(true)
+            )
+            .addStringOption((group: any) => group
+                .setName("name").setDescription("Member name").setRequired(true)
             )
         )
         .addSubcommandGroup((group: any) => group
@@ -100,6 +109,30 @@ module.exports = {
                     return;
                 };
                 await interaction.reply("Member doesn't exist.");
+            } else if (subCommand == "view"){
+                let islandName = interaction.options.getString("island");
+                let memberName = interaction.options.getString("name");
+                if (!checkIfIslandExists(interaction)) { await interaction.reply("Island doesn't exist"); return; };
+                let islandInfo = readFile(getIslandLocation(interaction), true);
+                const memberIndex = getMemberIndex(islandInfo, memberName);
+                if (memberIndex == undefined) { await interaction.reply("Member doesn't exist"); return; };
+                let memberColour = islandInfo.members[memberIndex].colour;
+                let memberImageUrl = islandInfo.members[memberIndex].imageUrl;
+                let embed = new EmbedBuilder()
+                    .setTitle(memberName)
+                    .addFields(
+                        {
+                        name: "colour",
+                        value: memberColour,
+                        inline: false
+                        },
+                    )
+                    .setColor(memberColour)
+                    .setFooter({
+                        text: islandName,
+                    });
+                if (memberImageUrl) { embed.setThumbnail(memberImageUrl) };
+                await interaction.reply({embeds: [embed]});
             };
         } else if (subCommandGroup == "edit"){
             if (subCommand == "image"){

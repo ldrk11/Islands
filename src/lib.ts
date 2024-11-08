@@ -58,6 +58,7 @@ export function readFile(filename: string, parseJson: boolean=true): any {
     };
     return null;
 };
+
 export class Log {
     log(...message:any) {
         console.log(`${BOLD_BLUE_FOREGROUND}[INFO]${RESET_STYLE}`, ...message);

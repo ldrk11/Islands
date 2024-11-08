@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder } from 'discord.js';
-import { getIslandLocation, checkIfIslandExists, getMemberIndex } from '../../lib';
+import { getIslandLocation, checkIfIslandExists, getMemberIndex, readFile, writeFile } from '../../lib';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -42,7 +42,7 @@ module.exports = {
             if (subCommand == "list"){
                 if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
                 let islandJsonLocation = getIslandLocation(interaction);
-                let islandInfo = interaction.client.readFile(islandJsonLocation, true);
+                let islandInfo = readFile(islandJsonLocation, true);
                 let islandMembers = islandInfo?.members ?? [];
                 if (islandMembers.length == 0){
                     await interaction.reply("No members on your island!");
@@ -91,11 +91,11 @@ module.exports = {
                 let memberName = interaction.options.getString("name");
                 if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
                 let islandJsonLocation = getIslandLocation(interaction);
-                let islandInfo = interaction.client.readFile(islandJsonLocation, true);
+                let islandInfo = readFile(islandJsonLocation, true);
                 let memberIndex = getMemberIndex(islandInfo, memberName);
                 if (!(memberIndex == undefined)){
                     islandInfo.members.splice(memberIndex, 1);
-                    interaction.client.writeFile(islandJsonLocation, islandInfo, true);
+                    writeFile(islandJsonLocation, islandInfo, true);
                     await interaction.reply("Member removed");
                     return;
                 };
@@ -117,14 +117,14 @@ module.exports = {
         let islandName = interaction.fields.getTextInputValue("memberAddIslandName");
         if (checkIfIslandExists(interaction.user.id, islandName) == false){ interaction.reply("Island doesn't exist."); return; };
         let islandJsonLocation = getIslandLocation(interaction.user.id, islandName);
-        let islandInfo = interaction.client.readFile(islandJsonLocation, true);
+        let islandInfo = readFile(islandJsonLocation, true);
         if (!(getMemberIndex(islandInfo, interaction.fields.getTextInputValue("memberAddName")) === undefined)) {
             await interaction.reply("Member already exists."); 
             return;
         };
         if (islandInfo.members == undefined){islandInfo.members = [];};
         islandInfo.members.push(memberNew);
-        interaction.client.writeFile(islandJsonLocation, islandInfo, true);
+        writeFile(islandJsonLocation, islandInfo, true);
         await interaction.reply("New member added to island!");
     },
     async commandReplyReceived(reply: any, replyTo: any){
@@ -160,11 +160,11 @@ module.exports = {
                     };                                                               
                     if (checkIfIslandExists(reply.member.id, islandName) == false){ reply.reply("Island doesn't exist."); return; };
                     let islandJsonLocation = getIslandLocation(reply.member.id, islandName);
-                    let islandInfo = reply.client.readFile(islandJsonLocation, true);
+                    let islandInfo = readFile(islandJsonLocation, true);
                     let memberIndex: any = getMemberIndex(islandInfo, memberName);
                     if (!(memberIndex == undefined)) {                     
                         islandInfo.members[memberIndex].imageUrl = memberImage.url;
-                        reply.client.writeFile(islandJsonLocation, islandInfo, true);
+                        writeFile(islandJsonLocation, islandInfo, true);
                         await reply.reply("Image added!");
                         return;
                     };

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { checkIfIslandExists, getIslandLocation } from '../../lib';
+import { checkIfIslandExists, getIslandLocation, writeFile } from '../../lib';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -20,7 +20,7 @@ module.exports = {
             await interaction.reply("Island already exists.");
             return;
         };
-        interaction.client.writeFile(getIslandLocation(interaction), {}, true);
+        writeFile(getIslandLocation(interaction), {}, true);
 		await interaction.reply(`${islandName} was created!`);
 	},
 };

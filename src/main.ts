@@ -50,38 +50,6 @@ client.once(Events.ClientReady, (readyClient: any) => {
 Log.prototype.log("Logging in");
 client.login(botToken);
 
-// CLIENT FUNCTIONS
-function writeFile(filename: string, data: string, parseJson: boolean=true) {
-    const lockFilename = `${filename}_lock`;
-    const folderOnlyFilename = filename.substring(0, filename.lastIndexOf("/"));
-    if (!fs.existsSync(folderOnlyFilename)){
-        fs.mkdirSync(folderOnlyFilename, { recursive: true });
-    };
-    if (!fs.existsSync(lockFilename)){
-        fs.writeFileSync(lockFilename, "");
-        if (parseJson) {data = JSON.stringify(data);};
-        fs.writeFileSync(filename, data);
-        fs.unlinkSync(lockFilename);
-        return true;
-    };
-    return false;
-};
-  
-function readFile(filename: string, parseJson: boolean=true) {
-    const lockFilename = `${filename}_lock`;
-    if (!fs.existsSync(lockFilename)){
-        fs.writeFileSync(lockFilename, "");
-        let fileF = fs.readFileSync(filename).toString();
-        if (parseJson){fileF = JSON.parse(fileF);};
-        fs.unlinkSync(lockFilename);
-        return fileF;
-    };
-    return null;
-};
-
-client.writeFile = writeFile;
-client.readFile = readFile;
-
 // IMPORT COMMANDS
 let commands: Collection<String, any> = new Collection();
 let commandsArray : string[] = [];

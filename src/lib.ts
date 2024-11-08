@@ -4,6 +4,17 @@ export const BOLD_RED_FOREGROUND = "\x1b[1;31m";
 export const BOLD_BLUE_FOREGROUND = "\x1b[1;34m";
 export const RESET_STYLE = "\x1b[0m";
 
+/** Restrictions to be set for island names 
+ * @param islandName
+ * Island Name to check for restricions.
+ */
+export function canIslandNameBeUsed(islandName: string): boolean {
+    if (islandName.length > 20 || islandName.includes("/") || islandName.includes("\\") || islandName.includes(".")){
+        return false;
+    }
+    return true;
+}
+
 export function getIslandLocation(param1: any, param2: undefined|string = undefined): string {
     if (param2 == undefined){ 
         const islandName = param1.options.getString("island") || param1.options.getString("name");
@@ -14,6 +25,8 @@ export function getIslandLocation(param1: any, param2: undefined|string = undefi
 };
 
 export function checkIfIslandExists(param1: any, param2: undefined|string = undefined): boolean {
+    const islandName = (param2 || (param1.options.getString("island") || param1.options.getString("name")))
+    if (!canIslandNameBeUsed(islandName)) { return false; };
     const islandJsonLocation = getIslandLocation(param1, param2);
     if (fs.existsSync(islandJsonLocation)){
         return true;

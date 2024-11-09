@@ -183,14 +183,13 @@ module.exports = {
                         } else {                                                     
                             islandName = `${islandName} ${originalMessageSplit[i]}`; 
                         };                                                           
-                    };                                                               
-                    if (checkIfIslandExists(reply.member.id, islandName) == false){ reply.reply("Island doesn't exist."); return; };
-                    let islandJsonLocation = getIslandLocation(reply.member.id, islandName);
-                    let islandInfo = readFile(islandJsonLocation, true);
-                    let memberIndex: any = getMemberIndex(islandInfo, memberName);
-                    if (!(memberIndex == undefined)) {                     
-                        islandInfo.members[memberIndex].imageUrl = memberImage.url;
-                        writeFile(islandJsonLocation, islandInfo, true);
+                    };
+                    let island: Island = new Island();
+                    if (!island.getDataByNameAndMemberId(reply.member.id, islandName)){ reply.reply("Island doesn't exist."); return; };
+                    let memberIndex: any = island.getMemberIndex(memberName);
+                    if (!(memberIndex == undefined)) {
+                        island.data.members[memberIndex].imageUrl = memberImage.url;
+                        island.save();
                         await reply.reply("Image added!");
                         return;
                     };

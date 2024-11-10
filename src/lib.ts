@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'node:path';
 
 export const BOLD_RED_FOREGROUND = "\x1b[1;31m";
 export const BOLD_BLUE_FOREGROUND = "\x1b[1;34m";
@@ -99,6 +100,9 @@ export class Island {
     save(){
         writeFile(this.fileLocation, this.data, true);
     };
+    get name(): string{
+        return path.basename(this.fileLocation, ".json");
+    }
 };
 
 export class Log {

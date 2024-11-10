@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, User } from 'discord.js';
-import { canIslandNameBeUsed, checkIfIslandExists, getIslandLocation, readFile, Log } from '../../lib';
+import { checkIfIslandExists, readFile, Island } from '../../lib';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -24,10 +24,11 @@ module.exports = {
             islands.push(interaction.options.getString("island") + ".json");
         };
         
-        for (const island of islands) {
-            const islandPath = path.join(foldersPath, island);
-            const islandData = readFile(islandPath, true);
-            reply = `${reply}${island.replace(".json", "")}: $${(islandData.balance || 0.00)}\n`;
+        for (const islandName of islands) {
+            const islandPath = path.join(foldersPath, islandName);
+            let island: Island = new Island();
+            island.getDataByLocation(islandPath);
+            reply = `${reply}${island.name}: $${(island.data.balance || 0.00)}\n`;
         };
         await interaction.reply(reply);
 	},

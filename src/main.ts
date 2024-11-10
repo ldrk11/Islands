@@ -64,7 +64,7 @@ for (const folder of commandFolders) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		if ('data' in command && 'execute' in command) {
-            Log.prototype.log(`${command.data.name} command was imported from ${filePath}`);
+            Log.prototype.log(`"${command.data.name}" command was imported from ${filePath}`);
 			commands.set(command.data.name, command);
 			commandsArray.push(command.data.toJSON());
 		} else {

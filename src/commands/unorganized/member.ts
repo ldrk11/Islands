@@ -94,14 +94,12 @@ module.exports = {
 
                 await interaction.showModal(modal);
             } else if (subCommand == "remove"){
-                let memberName = interaction.options.getString("name");
-                if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
-                let islandJsonLocation = getIslandLocation(interaction);
-                let islandInfo = readFile(islandJsonLocation, true);
-                let memberIndex = getMemberIndex(islandInfo, memberName);
+                let island: Island = new Island();
+                if (!island.getDataByInteraction(interaction)){ interaction.reply("Island doesn't exist."); return; };
+                let memberIndex = island.getMemberIndex(interaction.options.getString("name"));
                 if (!(memberIndex == undefined)){
-                    islandInfo.members.splice(memberIndex, 1);
-                    writeFile(islandJsonLocation, islandInfo, true);
+                    island.data.members.splice(memberIndex, 1);
+                    island.save();
                     await interaction.reply("Member removed");
                     return;
                 };

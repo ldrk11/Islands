@@ -1,12 +1,14 @@
-console.log("Press Control+C to stop the bot");
-
 // IMPORTS
+import { logoPrint } from './logoPrint';
+logoPrint();
 import dotenv from 'dotenv';
 dotenv.config();
 import fs from 'node:fs';
 import path from 'node:path';
 import { Client, Collection, Events, GatewayIntentBits, Routes, REST } from 'discord.js';
 import { BOLD_RED_FOREGROUND, RESET_STYLE, Log } from './lib';
+
+Log.prototype.log("Press Control+C to stop the bot");
 
 // ENVIROMENT VARS
 if (!fs.existsSync(".env")){

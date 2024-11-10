@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'node:path';
 
 export const BOLD_RED_FOREGROUND = "\x1b[1;31m";
 export const BOLD_BLUE_FOREGROUND = "\x1b[1;34m";
@@ -70,6 +71,38 @@ export function readFile(filename: string, parseJson: boolean=true): any {
         return fileF;
     };
     return null;
+};
+
+export class Island {
+    data: any;
+    fileLocation: any;
+    constructor(){
+        this.data = {};
+        this.fileLocation = "";
+    };
+    getDataByLocation(fileLocation: string){
+        const islandExists = fs.existsSync(fileLocation);
+        if (islandExists){
+            this.data = readFile(fileLocation, true);
+            this.fileLocation = fileLocation
+        }
+        return islandExists;
+    };
+    getDataByInteraction(interaction: any){
+        return this.getDataByLocation(getIslandLocation(interaction));
+    };
+    getDataByNameAndMemberId(name: any, memberId:any){
+        return this.getDataByLocation(getIslandLocation(name, memberId));
+    };
+    getMemberIndex(memberName: string){
+        return getMemberIndex(this.data, memberName);
+    };
+    save(){
+        writeFile(this.fileLocation, this.data, true);
+    };
+    get name(): string{
+        return path.basename(this.fileLocation, ".json");
+    }
 };
 
 export class Log {

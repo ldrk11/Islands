@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder, EmbedBuilder } from 'discord.js';
-import { getIslandLocation, checkIfIslandExists, getMemberIndex, readFile, writeFile } from '../../lib';
+import { Island } from '../../lib';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -49,19 +49,16 @@ module.exports = {
         const subCommandGroup = interaction.options.getSubcommandGroup();
         if (subCommandGroup == null){
             if (subCommand == "list"){
-                if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
-                let islandJsonLocation = getIslandLocation(interaction);
-                let islandInfo = readFile(islandJsonLocation, true);
-                let islandMembers = islandInfo?.members ?? [];
-                if (islandMembers.length == 0){
+                let island: Island = new Island();
+                if (!island.getDataByInteraction(interaction)){ interaction.reply("Island doesn't exist."); return; };
+                if ((island.data.members || []).length == 0){
                     await interaction.reply("No members on your island!");
                 } else {
-                    let memberList = ""
-                    for (let i = 0; i < islandMembers.length; i++){
-                        let member = islandMembers[i];
-                        memberList = memberList + `Name: ${member.name} \n`;
-                    };
-                    await interaction.reply(memberList);
+                    let reply = "";
+                    island.data.members.forEach((member: any, index: any) => {
+                        reply = `${reply}Name: ${member.name} \n`;
+                    });
+                    await interaction.reply(reply);
                 };
             } else if (subCommand == "add"){
                 const islandNameInput = new TextInputBuilder()
@@ -97,14 +94,12 @@ module.exports = {
 
                 await interaction.showModal(modal);
             } else if (subCommand == "remove"){
-                let memberName = interaction.options.getString("name");
-                if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
-                let islandJsonLocation = getIslandLocation(interaction);
-                let islandInfo = readFile(islandJsonLocation, true);
-                let memberIndex = getMemberIndex(islandInfo, memberName);
+                let island: Island = new Island();
+                if (!island.getDataByInteraction(interaction)){ interaction.reply("Island doesn't exist."); return; };
+                let memberIndex = island.getMemberIndex(interaction.options.getString("name"));
                 if (!(memberIndex == undefined)){
-                    islandInfo.members.splice(memberIndex, 1);
-                    writeFile(islandJsonLocation, islandInfo, true);
+                    island.data.members.splice(memberIndex, 1);
+                    island.save();
                     await interaction.reply("Member removed");
                     return;
                 };
@@ -112,26 +107,24 @@ module.exports = {
             } else if (subCommand == "view"){
                 let islandName = interaction.options.getString("island");
                 let memberName = interaction.options.getString("name");
-                if (!checkIfIslandExists(interaction)) { await interaction.reply("Island doesn't exist"); return; };
-                let islandInfo = readFile(getIslandLocation(interaction), true);
-                const memberIndex = getMemberIndex(islandInfo, memberName);
+                let island: Island = new Island();
+                if (!island.getDataByInteraction(interaction)) { await interaction.reply("Island doesn't exist"); return; };
+                const memberIndex = island.getMemberIndex(memberName);
                 if (memberIndex == undefined) { await interaction.reply("Member doesn't exist"); return; };
-                let memberColour = islandInfo.members[memberIndex].colour;
-                let memberImageUrl = islandInfo.members[memberIndex].imageUrl;
                 let embed = new EmbedBuilder()
                     .setTitle(memberName)
                     .addFields(
                         {
                         name: "colour",
-                        value: memberColour,
+                        value: island.data.members[memberIndex].colour,
                         inline: false
                         },
                     )
-                    .setColor(memberColour)
+                    .setColor(island.data.members[memberIndex].colour)
                     .setFooter({
                         text: islandName,
                     });
-                if (memberImageUrl) { embed.setThumbnail(memberImageUrl) };
+                if (island.data.members[memberIndex].imageUrl) { embed.setThumbnail(island.data.members[memberIndex].imageUrl) };
                 await interaction.reply({embeds: [embed]});
             };
         } else if (subCommandGroup == "edit"){
@@ -148,16 +141,12 @@ module.exports = {
             colour: interaction.fields.getTextInputValue("memberAddColour")
         };
         let islandName = interaction.fields.getTextInputValue("memberAddIslandName");
-        if (checkIfIslandExists(interaction.user.id, islandName) == false){ interaction.reply("Island doesn't exist."); return; };
-        let islandJsonLocation = getIslandLocation(interaction.user.id, islandName);
-        let islandInfo = readFile(islandJsonLocation, true);
-        if (!(getMemberIndex(islandInfo, interaction.fields.getTextInputValue("memberAddName")) === undefined)) {
-            await interaction.reply("Member already exists."); 
-            return;
-        };
-        if (islandInfo.members == undefined){islandInfo.members = [];};
-        islandInfo.members.push(memberNew);
-        writeFile(islandJsonLocation, islandInfo, true);
+        let island: Island = new Island();
+        if (!island.getDataByNameAndMemberId(interaction.user.id, islandName)){ await interaction.reply("Island doesn't exist."); return; };
+        if (!island.getMemberIndex(memberNew.name) === undefined) { await interaction.reply("Member already exists."); return; };
+        if (island.data.members == undefined){ island.data.members = []; };
+        island.data.members.push(memberNew);
+        island.save()
         await interaction.reply("New member added to island!");
     },
     async commandReplyReceived(reply: any, replyTo: any){
@@ -190,14 +179,13 @@ module.exports = {
                         } else {                                                     
                             islandName = `${islandName} ${originalMessageSplit[i]}`; 
                         };                                                           
-                    };                                                               
-                    if (checkIfIslandExists(reply.member.id, islandName) == false){ reply.reply("Island doesn't exist."); return; };
-                    let islandJsonLocation = getIslandLocation(reply.member.id, islandName);
-                    let islandInfo = readFile(islandJsonLocation, true);
-                    let memberIndex: any = getMemberIndex(islandInfo, memberName);
-                    if (!(memberIndex == undefined)) {                     
-                        islandInfo.members[memberIndex].imageUrl = memberImage.url;
-                        writeFile(islandJsonLocation, islandInfo, true);
+                    };
+                    let island: Island = new Island();
+                    if (!island.getDataByNameAndMemberId(reply.member.id, islandName)){ reply.reply("Island doesn't exist."); return; };
+                    let memberIndex: any = island.getMemberIndex(memberName);
+                    if (!(memberIndex == undefined)) {
+                        island.data.members[memberIndex].imageUrl = memberImage.url;
+                        island.save();
                         await reply.reply("Image added!");
                         return;
                     };

@@ -107,26 +107,24 @@ module.exports = {
             } else if (subCommand == "view"){
                 let islandName = interaction.options.getString("island");
                 let memberName = interaction.options.getString("name");
-                if (!checkIfIslandExists(interaction)) { await interaction.reply("Island doesn't exist"); return; };
-                let islandInfo = readFile(getIslandLocation(interaction), true);
-                const memberIndex = getMemberIndex(islandInfo, memberName);
+                let island: Island = new Island();
+                if (!island.getDataByInteraction(interaction)) { await interaction.reply("Island doesn't exist"); return; };
+                const memberIndex = island.getMemberIndex(memberName);
                 if (memberIndex == undefined) { await interaction.reply("Member doesn't exist"); return; };
-                let memberColour = islandInfo.members[memberIndex].colour;
-                let memberImageUrl = islandInfo.members[memberIndex].imageUrl;
                 let embed = new EmbedBuilder()
                     .setTitle(memberName)
                     .addFields(
                         {
                         name: "colour",
-                        value: memberColour,
+                        value: island.data.members[memberIndex].colour,
                         inline: false
                         },
                     )
-                    .setColor(memberColour)
+                    .setColor(island.data.members[memberIndex].colour)
                     .setFooter({
                         text: islandName,
                     });
-                if (memberImageUrl) { embed.setThumbnail(memberImageUrl) };
+                if (island.data.members[memberIndex].imageUrl) { embed.setThumbnail(island.data.members[memberIndex].imageUrl) };
                 await interaction.reply({embeds: [embed]});
             };
         } else if (subCommandGroup == "edit"){

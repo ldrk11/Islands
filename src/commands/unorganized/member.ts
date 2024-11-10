@@ -141,16 +141,12 @@ module.exports = {
             colour: interaction.fields.getTextInputValue("memberAddColour")
         };
         let islandName = interaction.fields.getTextInputValue("memberAddIslandName");
-        if (checkIfIslandExists(interaction.user.id, islandName) == false){ interaction.reply("Island doesn't exist."); return; };
-        let islandJsonLocation = getIslandLocation(interaction.user.id, islandName);
-        let islandInfo = readFile(islandJsonLocation, true);
-        if (!(getMemberIndex(islandInfo, interaction.fields.getTextInputValue("memberAddName")) === undefined)) {
-            await interaction.reply("Member already exists."); 
-            return;
-        };
-        if (islandInfo.members == undefined){islandInfo.members = [];};
-        islandInfo.members.push(memberNew);
-        writeFile(islandJsonLocation, islandInfo, true);
+        let island: Island = new Island();
+        if (!island.getDataByNameAndMemberId(interaction.user.id, islandName)){ await interaction.reply("Island doesn't exist."); return; };
+        if (!island.getMemberIndex(memberNew.name) === undefined) { await interaction.reply("Member already exists."); return; };
+        if (island.data.members == undefined){ island.data.members = []; };
+        island.data.members.push(memberNew);
+        island.save()
         await interaction.reply("New member added to island!");
     },
     async commandReplyReceived(reply: any, replyTo: any){

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder, EmbedBuilder } from 'discord.js';
-import { getIslandLocation, checkIfIslandExists, getMemberIndex, readFile, writeFile, Island } from '../../lib';
+import { Island } from '../../lib';
 
 module.exports = {
 	data: new SlashCommandBuilder()

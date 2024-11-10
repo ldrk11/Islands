@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, TextInputBuilder, ModalBuilder, ActionRowBuilder, EmbedBuilder } from 'discord.js';
-import { getIslandLocation, checkIfIslandExists, getMemberIndex, readFile, writeFile } from '../../lib';
+import { getIslandLocation, checkIfIslandExists, getMemberIndex, readFile, writeFile, Island } from '../../lib';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -49,19 +49,16 @@ module.exports = {
         const subCommandGroup = interaction.options.getSubcommandGroup();
         if (subCommandGroup == null){
             if (subCommand == "list"){
-                if (checkIfIslandExists(interaction) == false){ interaction.reply("Island doesn't exist."); return; };
-                let islandJsonLocation = getIslandLocation(interaction);
-                let islandInfo = readFile(islandJsonLocation, true);
-                let islandMembers = islandInfo?.members ?? [];
-                if (islandMembers.length == 0){
+                let island: Island = new Island();
+                if (!island.getDataByInteraction(interaction)){ interaction.reply("Island doesn't exist."); return; };
+                if ((island.data.members || []).length == 0){
                     await interaction.reply("No members on your island!");
                 } else {
-                    let memberList = ""
-                    for (let i = 0; i < islandMembers.length; i++){
-                        let member = islandMembers[i];
-                        memberList = memberList + `Name: ${member.name} \n`;
-                    };
-                    await interaction.reply(memberList);
+                    let reply = "";
+                    island.data.members.forEach((member: any, index: any) => {
+                        reply = `${reply}Name: ${member.name} \n`;
+                    });
+                    await interaction.reply(reply);
                 };
             } else if (subCommand == "add"){
                 const islandNameInput = new TextInputBuilder()

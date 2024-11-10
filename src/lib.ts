@@ -72,6 +72,35 @@ export function readFile(filename: string, parseJson: boolean=true): any {
     return null;
 };
 
+export class Island {
+    data: any;
+    fileLocation: any;
+    constructor(){
+        this.data = {};
+        this.fileLocation = "";
+    };
+    getDataByLocation(fileLocation: string){
+        const islandExists = fs.existsSync(fileLocation);
+        if (islandExists){
+            this.data = readFile(fileLocation, true);
+            this.fileLocation = fileLocation
+        }
+        return islandExists;
+    };
+    getDataByInteraction(interaction: any){
+        return this.getDataByLocation(getIslandLocation(interaction));
+    };
+    getDataByNameAndMemberId(name: any, memberId:any){
+        return this.getDataByLocation(getIslandLocation(name, memberId));
+    };
+    getMemberIndex(memberName: string){
+        return getMemberIndex(this.data, memberName);
+    };
+    save(){
+        writeFile(this.fileLocation, this.data, true);
+    };
+};
+
 export class Log {
     log(...message:any) {
         console.log(`${BOLD_BLUE_FOREGROUND}[INFO]${RESET_STYLE}`, ...message);

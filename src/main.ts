@@ -1,12 +1,23 @@
 // IMPORTS
-import { logoPrint } from './logoPrint';
-logoPrint();
 import dotenv from 'dotenv';
 dotenv.config();
 import fs from 'node:fs';
 import path from 'node:path';
 import { Client, Collection, Events, GatewayIntentBits, Routes, REST } from 'discord.js';
-import { BOLD_RED_FOREGROUND, RESET_STYLE, Log } from './lib';
+import { Log, readFile } from './lib';
+import { logoPrint } from './logoPrint';
+
+const botSettingsJson = path.join(__dirname, "../botSettings.json");
+let botSettings;
+if (fs.existsSync(botSettingsJson)){
+    botSettings = readFile(botSettingsJson, true);
+} else {
+    botSettings = {};
+}
+
+if (botSettings.printLogo ?? true) {
+    logoPrint();
+}
 
 Log.prototype.log("Press Control+C to stop the bot");
 

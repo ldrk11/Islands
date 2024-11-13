@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, User } from 'discord.js';
-import { checkIfIslandExists, readFile, Island } from '../../lib';
+import { Island } from '../../lib';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -17,7 +17,7 @@ module.exports = {
         if (interaction.options.getString("island") == undefined){
             islands = fs.readdirSync(foldersPath).filter((file: string) => file.endsWith('.json'));
         } else {
-            if (!checkIfIslandExists(user.id, interaction.options.getString("island"))){
+            if (!Island.checkIfIslandExists(user.id, interaction.options.getString("island"))){
                 await interaction.reply("Island doesn't exist");
                 return;
             };

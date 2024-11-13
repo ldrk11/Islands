@@ -5,46 +5,6 @@ export const BOLD_RED_FOREGROUND = "\x1b[1;31m";
 export const BOLD_BLUE_FOREGROUND = "\x1b[1;34m";
 export const RESET_STYLE = "\x1b[0m";
 
-/** Restrictions to be set for island names 
- * @param islandName
- * Island Name to check for restricions.
- */
-export function canIslandNameBeUsed(islandName: string): boolean {
-    if (islandName.length > 20 || islandName.includes("/") || islandName.includes("\\") || islandName.includes(".")){
-        return false;
-    }
-    return true;
-}
-
-export function getIslandLocation(param1: any, param2: undefined|string = undefined): string {
-    if (param2 == undefined){ 
-        const islandName = param1.options.getString("island") || param1.options.getString("name");
-        return `./data/users/${param1.user.id}/${islandName}.json`;
-    } else {
-        return `./data/users/${param1}/${param2}.json`;
-    };
-};
-
-export function checkIfIslandExists(param1: any, param2: undefined|string = undefined): boolean {
-    const islandName = (param2 || (param1.options.getString("island") || param1.options.getString("name")))
-    if (!canIslandNameBeUsed(islandName)) { return false; };
-    const islandJsonLocation = getIslandLocation(param1, param2);
-    if (fs.existsSync(islandJsonLocation)){
-        return true;
-    };
-    return false;
-};
-
-export function getMemberIndex(islandData: any, memberName: string): undefined|number {
-    let memberIndex: undefined|number = undefined;
-    (islandData.members || []).forEach((member: any, index: number) => {
-        if (member.name == memberName && memberIndex == undefined){
-            memberIndex = index;
-        };
-    });
-    return memberIndex
-}
-
 export function writeFile(filename: string, data: any, parseJson: boolean=true): any {
     const lockFilename = `${filename}_lock`;
     const folderOnlyFilename = filename.substring(0, filename.lastIndexOf("/"));
@@ -80,6 +40,33 @@ export class Island {
         this.data = {};
         this.fileLocation = "";
     };
+    /** Restrictions to be set for island names 
+     * @param islandName
+     * Island Name to check for restricions.
+     */
+    static canIslandNameBeUsed(islandName: string): boolean {
+        if (islandName.length > 20 || islandName.includes("/") || islandName.includes("\\") || islandName.includes(".")){
+            return false;
+        }
+        return true;
+    }
+    static getIslandLocation(param1: any, param2: undefined|string = undefined): string {
+        if (param2 == undefined){ 
+            const islandName = param1.options.getString("island") || param1.options.getString("name");
+            return `./data/users/${param1.user.id}/${islandName}.json`;
+        } else {
+            return `./data/users/${param1}/${param2}.json`;
+        };
+    };
+    static checkIfIslandExists(param1: any, param2: undefined|string = undefined): boolean {
+        const islandName = (param2 || (param1.options.getString("island") || param1.options.getString("name")))
+        if (!Island.canIslandNameBeUsed(islandName)) { return false; };
+        const islandJsonLocation = Island.getIslandLocation(param1, param2);
+        if (fs.existsSync(islandJsonLocation)){
+            return true;
+        };
+        return false;
+    };
     getDataByLocation(fileLocation: string){
         const islandExists = fs.existsSync(fileLocation);
         if (islandExists){
@@ -89,13 +76,19 @@ export class Island {
         return islandExists;
     };
     getDataByInteraction(interaction: any){
-        return this.getDataByLocation(getIslandLocation(interaction));
+        return this.getDataByLocation(Island.getIslandLocation(interaction));
     };
     getDataByNameAndMemberId(name: any, memberId:any){
-        return this.getDataByLocation(getIslandLocation(name, memberId));
+        return this.getDataByLocation(Island.getIslandLocation(name, memberId));
     };
     getMemberIndex(memberName: string){
-        return getMemberIndex(this.data, memberName);
+        let memberIndex: undefined|number = undefined;
+        (this.data.members || []).forEach((member: any, index: number) => {
+            if (member.name == memberName && memberIndex == undefined){
+                memberIndex = index;
+            };
+        });
+        return memberIndex
     };
     save(){
         writeFile(this.fileLocation, this.data, true);
